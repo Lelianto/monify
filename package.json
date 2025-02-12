@@ -8,8 +8,21 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "keywords": [],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lelianto/monify.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Lelianto/monify/issues"
+  },
+  "homepage": "https://github.com/Lelianto/monify#readme",
+  "keywords": [
+    "currency",
+    "formatter",
+    "money",
+    "typescript"
+  ],
+  "author": "antihero",
   "license": "ISC",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.24.0",
