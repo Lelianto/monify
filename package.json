@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "build": "tsc",
-    "test": "node dist/test.js"
+    "test": "jest"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,11 +23,15 @@
     "typescript"
   ],
   "author": "antihero",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",
     "eslint": "^9.20.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
-  }
+  },
+  "type": "module"
 }

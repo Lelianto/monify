@@ -1,7 +1,2 @@
-export declare class CurrencyFormatter {
-    private locale;
-    private currency;
-    private decimalPlaces;
-    constructor(locale?: string, currency?: string, decimalPlaces?: number);
-    format(amount: number): string;
-}
+export declare function format(amount: number, currency?: string, locale?: string, // Locale is now optional
+abbreviate?: boolean, useSuffix?: boolean, decimalDigits?: number, useSpacing?: boolean): string;

@@ -1,45 +1,90 @@
-export class Monify {
-	private locale: string;
-	private currency: string;
-	private decimalPlaces: number;
+const currencyToLocale: Record<string, string> = {
+	USD: "en-US", // US Dollar
+	EUR: "de-DE", // Euro
+	IDR: "id-ID", // Indonesian Rupiah
+	JPY: "ja-JP", // Japanese Yen
+	GBP: "en-GB", // British Pound
+	AUD: "en-AU", // Australian Dollar
+	CAD: "en-CA", // Canadian Dollar
+	CNY: "zh-CN", // Chinese Yuan
+	INR: "en-IN", // Indian Rupee
+	KRW: "ko-KR", // South Korean Won
+	CHF: "de-CH", // Swiss Franc
+	SGD: "en-SG", // Singapore Dollar
+	HKD: "zh-HK", // Hong Kong Dollar
+	MYR: "ms-MY", // Malaysian Ringgit
+	PHP: "en-PH", // Philippine Peso
+	THB: "th-TH", // Thai Baht
+	NZD: "en-NZ", // New Zealand Dollar
+	BRL: "pt-BR", // Brazilian Real
+	RUB: "ru-RU", // Russian Ruble
+	MXN: "es-MX", // Mexican Peso
+	ZAR: "en-ZA", // South African Rand
+	SAR: "ar-SA", // Saudi Riyal
+	AED: "ar-AE", // UAE Dirham
+	TRY: "tr-TR", // Turkish Lira
+	SEK: "sv-SE", // Swedish Krona
+	NOK: "nb-NO", // Norwegian Krone
+	DKK: "da-DK", // Danish Krone
+	PLN: "pl-PL", // Polish Złoty
+	HUF: "hu-HU", // Hungarian Forint
+	CZK: "cs-CZ", // Czech Koruna
+	ILS: "he-IL", // Israeli Shekel
+	ARS: "es-AR", // Argentine Peso
+	CLP: "es-CL", // Chilean Peso
+	COP: "es-CO", // Colombian Peso
+	PEN: "es-PE", // Peruvian Sol
+	VND: "vi-VN", // Vietnamese Dong
+	BDT: "bn-BD", // Bangladeshi Taka
+	PKR: "ur-PK", // Pakistani Rupee
+	EGP: "ar-EG", // Egyptian Pound
+	NGN: "en-NG", // Nigerian Naira
+	KES: "en-KE", // Kenyan Shilling
+};
 
-	// Currency-specific decimal settings
-	private static CURRENCY_DECIMALS: Record<string, number> = {
-		USD: 2, IDR: 0, JPY: 0, EUR: 2, GBP: 2, AUD: 2, CAD: 2, INR: 2, CNY: 2
-	};
+export function format(
+	amount: number,
+	currency: string = "USD",
+	locale?: string, // Locale is now optional
+	abbreviate: boolean = false,
+	useSuffix: boolean = true,
+	decimalDigits?: number,
+	useSpacing: boolean = true
+): string {
+	// Determine locale automatically if not provided
+	const resolvedLocale = locale || currencyToLocale[currency] || "en-US";
 
-	constructor(locale: string = 'en-US', currency: string = 'USD') {
-		this.locale = locale;
-		this.currency = currency;
-		this.decimalPlaces = Monify.CURRENCY_DECIMALS[currency] ?? 2; // Default to 2 decimals
-	}
+	let formattedAmount: string;
 
-	format(amount: number, abbreviate: boolean = false): string {
-		if (abbreviate) {
-			return this.formatAbbreviated(amount);
-		}
-
-		return new Intl.NumberFormat(this.locale, {
-			style: 'currency',
-			currency: this.currency,
-			minimumFractionDigits: this.decimalPlaces,
-		}).format(amount);
-	}
-
-	private formatAbbreviated(amount: number): string {
-		const suffixes = ['', 'K', 'M', 'B', 'T'];
-		let value = amount;
+	if (abbreviate) {
+		const suffixes = ["", "K", "M", "B", "T"];
 		let suffixIndex = 0;
-
-		while (value >= 1000 && suffixIndex < suffixes.length - 1) {
-			value /= 1000;
+		while (amount >= 1000 && suffixIndex < suffixes.length - 1) {
+			amount /= 1000;
 			suffixIndex++;
 		}
 
-		return new Intl.NumberFormat(this.locale, {
-			style: 'currency',
-			currency: this.currency,
-			minimumFractionDigits: this.decimalPlaces,
-		}).format(value) + suffixes[suffixIndex];
+		formattedAmount = useSuffix
+			? `${amount.toFixed(decimalDigits ?? 2)}${suffixes[suffixIndex]}`
+			: amount.toFixed(decimalDigits ?? 2);
+	} else {
+		formattedAmount = new Intl.NumberFormat(resolvedLocale, {
+			style: "currency",
+			currency,
+			minimumFractionDigits: decimalDigits,
+			maximumFractionDigits: decimalDigits,
+		}).format(amount);
 	}
+
+	// Handle spacing based on user preference
+	if (!useSpacing) {
+		formattedAmount = formattedAmount.replace(/\s/, "");
+	} else {
+		formattedAmount = formattedAmount.replace(/\u00A0/g, " ")
+	}
+
+	formattedAmount = formattedAmount.replace("¥", "￥")
+	formattedAmount = formattedAmount.replace("Rs", "₨")
+
+	return formattedAmount;
 }
