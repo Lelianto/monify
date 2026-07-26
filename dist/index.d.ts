@@ -1,2 +1,3 @@
-export { format } from "./currencyFormatter";
-export { formatUnit } from "./unitFormatter";
+export { format, formatCurrency, type CurrencyFormatOptions, } from "./currencyFormatter";
+export { formatUnit, type UnitFormatOptions } from "./unitFormatter";
+//# sourceMappingURL=index.d.ts.map

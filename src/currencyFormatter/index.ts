@@ -1,4 +1,4 @@
-const currencyToLocale: Record<string, string> = {
+const currencyToLocale: Readonly<Record<string, string>> = {
 	USD: "en-US", // US Dollar
 	EUR: "de-DE", // Euro
 	IDR: "id-ID", // Indonesian Rupiah
@@ -42,49 +42,111 @@ const currencyToLocale: Record<string, string> = {
 	KES: "en-KE", // Kenyan Shilling
 };
 
+export interface CurrencyFormatOptions {
+	/** ISO 4217 currency code. Defaults to USD. */
+	currency?: string;
+	/** BCP 47 locale. Inferred from the currency when omitted. */
+	locale?: string;
+	/** Use Intl compact notation (for example, "$1.2M"). */
+	compact?: boolean;
+	/** Number of fraction digits to display. */
+	decimalDigits?: number;
+	/** Remove whitespace between the currency symbol and value. */
+	useSpacing?: boolean;
+	/** Customize the currency display. */
+	currencyDisplay?: Intl.NumberFormatOptions["currencyDisplay"];
+	/** Customize compact output. */
+	compactDisplay?: Intl.NumberFormatOptions["compactDisplay"];
+}
+
+function normalizeCurrency(currency: string): string {
+	return currency.trim().toUpperCase();
+}
+
+function normalizeSpacing(value: string, useSpacing: boolean): string {
+	const normalized = value.replace(/[\u00a0\u202f]/g, " ");
+	return useSpacing ? normalized : normalized.replace(/\s/g, "");
+}
+
+/**
+ * Format a monetary value using the platform's Intl implementation.
+ */
+export function formatCurrency(
+	amount: number,
+	options: CurrencyFormatOptions = {},
+): string {
+	const currency = normalizeCurrency(options.currency ?? "USD");
+	const locale = options.locale ?? currencyToLocale[currency] ?? "en-US";
+	const decimalDigits = options.decimalDigits;
+
+	if (
+		decimalDigits !== undefined &&
+		(!Number.isInteger(decimalDigits) || decimalDigits < 0 || decimalDigits > 20)
+	) {
+		throw new RangeError("decimalDigits must be an integer between 0 and 20");
+	}
+
+	return normalizeSpacing(
+		new Intl.NumberFormat(locale, {
+			style: "currency",
+			currency,
+			currencyDisplay: options.currencyDisplay,
+			notation: options.compact ? "compact" : "standard",
+			compactDisplay: options.compactDisplay,
+			minimumFractionDigits: decimalDigits,
+			maximumFractionDigits: decimalDigits,
+		}).format(amount),
+		options.useSpacing ?? true,
+	);
+}
+
+/**
+ * Backward-compatible formatter. New code should prefer the options object.
+ */
+export function format(amount: number, options?: CurrencyFormatOptions): string;
 export function format(
 	amount: number,
-	currency: string = "USD",
-	locale?: string, // Locale is now optional
-	abbreviate: boolean = false,
-	useSuffix: boolean = true,
+	currency?: string,
+	locale?: string,
+	abbreviate?: boolean,
+	useSuffix?: boolean,
 	decimalDigits?: number,
-	useSpacing: boolean = true
+	useSpacing?: boolean,
+): string;
+export function format(
+	amount: number,
+	currencyOrOptions: string | CurrencyFormatOptions = "USD",
+	locale?: string,
+	abbreviate = false,
+	useSuffix = true,
+	decimalDigits?: number,
+	useSpacing = true,
 ): string {
-	// Determine locale automatically if not provided
-	const resolvedLocale = locale || currencyToLocale[currency] || "en-US";
+	if (typeof currencyOrOptions !== "string") {
+		return formatCurrency(amount, currencyOrOptions);
+	}
 
-	let formattedAmount: string;
+	const currency = normalizeCurrency(currencyOrOptions);
 
 	if (abbreviate) {
 		const suffixes = ["", "K", "M", "B", "T"];
 		let suffixIndex = 0;
-		while (amount >= 1000 && suffixIndex < suffixes.length - 1) {
+		while (Math.abs(amount) >= 1000 && suffixIndex < suffixes.length - 1) {
 			amount /= 1000;
 			suffixIndex++;
 		}
 
-		formattedAmount = useSuffix
+		return useSuffix
 			? `${amount.toFixed(decimalDigits ?? 2)}${suffixes[suffixIndex]}`
 			: amount.toFixed(decimalDigits ?? 2);
-	} else {
-		formattedAmount = new Intl.NumberFormat(resolvedLocale, {
-			style: "currency",
-			currency,
-			minimumFractionDigits: decimalDigits,
-			maximumFractionDigits: decimalDigits,
-		}).format(amount);
 	}
 
-	// Handle spacing based on user preference
-	if (!useSpacing) {
-		formattedAmount = formattedAmount.replace(/\s/, "");
-	} else {
-		formattedAmount = formattedAmount.replace(/\u00A0/g, " ")
-	}
-
-	formattedAmount = formattedAmount.replace("¥", "￥")
-	formattedAmount = formattedAmount.replace("Rs", "₨")
-
-	return formattedAmount;
+	return formatCurrency(amount, {
+		currency,
+		locale,
+		decimalDigits,
+		useSpacing,
+	})
+		.replace("¥", "￥")
+		.replace("Rs", "₨");
 }

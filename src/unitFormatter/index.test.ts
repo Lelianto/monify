@@ -32,4 +32,19 @@ describe("formatUnit function - Unit Formatting Tests", () => {
 	test("handles values with negative numbers", () => {
 		expect(formatUnit(-1000, "kilogram", "en-US")).toBe("-1,000 kg");
 	});
+
+	test("supports the options API", () => {
+		expect(formatUnit(1234.56, "liter", {
+			locale: "en-US",
+			thousandSeparator: "_",
+			decimalDigits: 1,
+			unitDisplay: "long",
+		})).toBe("1_234.6 liters");
+	});
+
+	test("supports an empty custom group separator", () => {
+		expect(formatUnit(1000000, "meter", {
+			thousandSeparator: "",
+		})).toBe("1000000 m");
+	});
 });

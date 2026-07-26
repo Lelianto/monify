@@ -1,13 +1,33 @@
 {
   "name": "monify-ts",
-  "version": "1.0.3",
-  "description": "",
+  "version": "1.1.0",
+  "description": "Zero-dependency TypeScript utilities for locale-aware currency and unit formatting.",
   "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prebuild": "npm run clean",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest --runInBand",
+    "test:coverage": "jest --coverage --runInBand",
+    "check": "npm test && npm run build",
+    "prepack": "npm run check"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/Lelianto/monify.git"
@@ -20,10 +40,16 @@
     "currency",
     "formatter",
     "money",
-    "typescript"
+    "typescript",
+    "intl",
+    "localization",
+    "unit-formatting"
   ],
-  "author": "antihero",
+  "author": "Lelianto Eko Pradana",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
@@ -32,6 +58,5 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
-  },
-  "type": "module"
+  }
 }

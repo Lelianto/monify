@@ -3,8 +3,16 @@
     "outDir": "dist",
     "rootDir": "src",
     "module": "CommonJS",
-    "target": "ES6",
+    "moduleResolution": "Node",
+    "target": "ES2020",
     "declaration": true,
-    "strict": true
-  }
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "dist", "node_modules"]
 }

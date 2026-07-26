@@ -1,111 +1,100 @@
-# 🌍 Monify - A Simple Currency Formatter
+# Monify
 
-Monify is a lightweight **currency formatting** library built with **TypeScript**. It supports multiple currencies and provides flexible formatting options.
+[![npm version](https://img.shields.io/npm/v/monify-ts.svg)](https://www.npmjs.com/package/monify-ts)
+[![license](https://img.shields.io/npm/l/monify-ts.svg)](./LICENSE)
 
-## 📦 Installation
+Small, zero-dependency TypeScript utilities for locale-aware currency and unit
+formatting. Monify is built on the standard `Intl.NumberFormat` API, ships its
+own types, and works in Node.js and modern browsers.
+
+## Install
 
 ```sh
 npm install monify-ts
 ```
-or 
-with yarn:
-```sh
-yarn add monify-ts
+
+## Currency formatting
+
+```ts
+import { format, formatCurrency } from "monify-ts";
+
+formatCurrency(1_234_567.89, { currency: "USD" });
+// "$1,234,567.89"
+
+formatCurrency(1_234_567.89, { currency: "IDR" });
+// "Rp 1.234.567,89"
+
+formatCurrency(1_500_000, {
+  currency: "USD",
+  compact: true,
+  decimalDigits: 1,
+});
+// "$1.5M"
+
+format(1_234.5, {
+  currency: "EUR",
+  locale: "de-DE",
+  decimalDigits: 1,
+});
+// "1.234,5 €"
 ```
-## 🚀 Usage
-```sh
-import { format } from "monify-ts";
+
+`formatCurrency(amount, options)` is the recommended API. `format` accepts the
+same options and continues to support the positional API from Monify 1.0.
+
+### Currency options
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `currency` | `string` | `"USD"` | ISO 4217 currency code |
+| `locale` | `string` | inferred | BCP 47 locale |
+| `compact` | `boolean` | `false` | Use compact notation |
+| `decimalDigits` | `number` | currency default | Fraction digits, from 0 to 20 |
+| `useSpacing` | `boolean` | `true` | Keep spacing around the symbol |
+| `currencyDisplay` | `Intl` option | `"symbol"` | Symbol, narrow symbol, code, or name |
+| `compactDisplay` | `Intl` option | `"short"` | Short or long compact notation |
+
+Currency locale inference is provided for 41 common currencies. Any valid
+currency and locale supported by the runtime can still be passed explicitly.
+
+## Unit formatting
+
+```ts
+import { formatUnit } from "monify-ts";
+
+formatUnit(1_000, "kilometer");
+// "1,000 km"
+
+formatUnit(1_234.56, "liter", {
+  locale: "en-US",
+  thousandSeparator: "_",
+  decimalDigits: 1,
+  unitDisplay: "long",
+});
+// "1_234.6 liters"
 ```
 
-## 📦 Basic Usage
-```sh
-console.log(format(1234567.89, "USD")); // "$1,234,567.89"
-console.log(format(1234567.89, "EUR")); // "1.234.567,89 €"
-console.log(format(1234567.89, "IDR")); // "Rp 1.234.567,00"
+The legacy `formatUnit(value, unit, locale, thousandSeparator)` signature is
+also supported.
 
-// Custom decimal digits
-console.log(format(1234567.89, "JPY", 0)); // "¥1,234,567"
+## Compatibility
 
-// Disable currency symbol spacing
-console.log(format(1234567.89, "GBP", 2, false, false)); // "£1,234,567.89"
+- Node.js 18 or newer
+- Modern browsers with `Intl.NumberFormat`
+- CommonJS (`require`) and TypeScript/ES module imports
+- No runtime dependencies
 
-// Enable suffix formatting
-console.log(format(1500000, "USD", 2, true)); // "$1.5M"
-```
-## 📜 API Reference
-```sh
-format(
-  value: number,
-  currency: string,
-  decimalDigits?: number,  // Optional (Default: Auto)
-  useSuffix?: boolean,     // Optional (Default: false) → Enable "K, M, B" suffix
-  useSpace?: boolean       // Optional (Default: true) → Add space between symbol and number
-): string
-```
-## 🌎 Supported Currencies
+Output can differ slightly between runtime versions because locale data is
+provided by the JavaScript engine.
 
-| Currency             | Code | Example Output         |
-|----------------------|------|------------------------|
-| US Dollar           | USD  | `$1,234,567.89`       |
-| Euro               | EUR  | `1.234.567,89 €`      |
-| Indonesian Rupiah   | IDR  | `Rp 1.234.567,00`     |
-| Japanese Yen        | JPY  | `¥1,234,567`         |
-| British Pound       | GBP  | `£1,234,567.89`       |
-| Australian Dollar   | AUD  | `$1,234,567.89`       |
-| Canadian Dollar     | CAD  | `$1,234,567.89`       |
-| Chinese Yuan       | CNY  | `￥1,234,567.89`     |
-| Indian Rupee       | INR  | `₹12,34,567.89`      |
-| South Korean Won    | KRW  | `₩1,234,567`        |
-| Swiss Franc        | CHF  | `CHF 1’234’567.89`  |
-| Singapore Dollar   | SGD  | `$1,234,567.89`       |
-| Hong Kong Dollar   | HKD  | `HK$1,234,567.89`     |
-| Malaysian Ringgit  | MYR  | `RM 1,234,567.89`     |
-| Philippine Peso    | PHP  | `₱1,234,567.89`       |
-| Thai Baht         | THB  | `฿1,234,567.89`      |
-| New Zealand Dollar | NZD  | `$1,234,567.89`       |
-| Brazilian Real     | BRL  | `R$ 1.234.567,89`     |
-| Russian Ruble      | RUB  | `1 234 567,89 ₽`     |
-| Mexican Peso       | MXN  | `$1,234,567.89`       |
-| South African Rand | ZAR  | `R 1,234,567.89`      |
-| Turkish Lira       | TRY  | `₺1.234.567,89`      |
-| Swedish Krona      | SEK  | `1 234 567,89 kr`    |
-| Norwegian Krone    | NOK  | `kr 1 234 567,89`    |
-| Danish Krone      | DKK  | `1.234.567,89 kr.`  |
-| Polish Zloty      | PLN  | `1 234 567,89 zł`    |
-| Hungarian Forint   | HUF  | `1 234 567,89 Ft`    |
-| Czech Koruna      | CZK  | `1 234 567,89 Kč`    |
-| Argentine Peso    | ARS  | `$ 1.234.567,89`    |
-| Chilean Peso      | CLP  | `$1.234.568`        |
-| Colombian Peso    | COP  | `$ 1.234.567,89`    |
-| Peruvian Sol      | PEN  | `S/ 1,234,567.89`    |
-| Vietnamese Dong   | VND  | `1.234.568 ₫`       |
-| Pakistani Rupee   | PKR  | `₨ 1,234,567.89`    |
-| Nigerian Naira    | NGN  | `₦1,234,567.89`    |
-| Kenyan Shilling   | KES  | `Ksh 1,234,567.89`   |
+## Development
 
-## 🧪 Running Tests
-To run tests, use:
 ```sh
 npm test
+npm run build
+npm run check
 ```
-or
-```sh
-yarn test
-```
-Tests are written using Jest, covering multiple currencies to ensure accuracy.
 
-## 🤝 Contributing
-Contributions are welcome! To contribute:
+## License
 
-```sh
-Fork the repository.
-Clone your forked repo.
-Create a new feature branch.
-Implement and test changes.
-Submit a pull request.
-```
-## 📜 License
-Monify is released under the MIT License.
-
-## 📩 Support
-For questions or issues, open a GitHub Issue or contact me at [lelianto.eko@gmail.com].
+[MIT](./LICENSE)

@@ -1,14 +1,14 @@
 /** @type {import('jest').Config} */
 export default {
-    preset: "ts-jest", // Use ts-jest for TypeScript support
-    testEnvironment: "node", // Use Node.js environment
+    preset: "ts-jest",
+    testEnvironment: "node",
     extensionsToTreatAsEsm: [".ts"],
-    globals: {
-        "ts-jest": {
-            useESM: true, // Enable ESM support for Jest
-        },
+    transform: {
+        "^.+\\.tsx?$": ["ts-jest", { useESM: true }],
     },
     moduleNameMapper: {
-        "^(\\.{1,2}/.*)\\.js$": "$1", // Fixes import paths
+        "^(\\.{1,2}/.*)\\.js$": "$1",
     },
+    roots: ["<rootDir>/src"],
+    collectCoverageFrom: ["src/**/*.ts", "!src/**/*.test.ts"],
 };

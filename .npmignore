@@ -1,0 +1,7 @@
+src
+coverage
+*.tgz
+.github
+.gitignore
+jest.config.js
+tsconfig.json
